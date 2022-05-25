@@ -1,0 +1,7 @@
+pandas~=1.4.1
+gitpython
+pygithub
+requests~=2.27.1
+progress~=1.6
+numpy~=1.22.3
+nltk
