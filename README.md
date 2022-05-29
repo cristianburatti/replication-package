@@ -146,3 +146,125 @@ The fine-tuned models that were generated during our experiments can be found [h
 
 ------------------------------------------------------------------------------------------------------------------------
 
+### Task 4 - Evaluation Framework
+
+A folder called `framework` contains the entire code of the novel tool we implemented. As always, you are required to 
+install the dependencies.
+
+A help message can be printed by using the `--help` flag (or `-h`).
+
+```
+python3 src/main.py --help
+```
+
+*Note*: every command listed in this guide is meant to be launched from inside the **root** directory of the framework
+
+#### Mining
+
+The first functionality of the framework is the generation of a dataset composed only by methods covered by tests.
+By running this function, the old dataset will be **overridden** and the new one will be generated. It is recommended
+to refresh the dataset once a year to keep it up-to-date. Be careful as the old dataset will be **deleted** as soon as
+the script starts.
+
+The tool might take even weeks to create the dataset. As soon as it is done, it will generate a folder called `resources`
+in the root directory of the framework. This will contain the one zip for each mined repository, plus the following
+files:
+
+- `repositories.csv`: a list of all the repositories in the dataset, even the ones the tool failed to mine, with 
+                      detailed information (_e.g._, project status, release tag, time required to build, etc.).
+- `expected.csv`: the code of each extracted method (_i.e._, the target methods).
+- `tracing.csv`: a mapping of each method to repository it has been extracted from, alongside other information such as 
+                 the file inside the project, the line number, coverage of the method, etc.
+
+The folder created when we first run the script, and therefore the dataset we used in our thesis, can be found
+[here](TODO Link 8). Alongside the resources folder, we also have the input file we provided to the tool.
+
+You can invoke the mining function by using the following command:
+
+```bash
+python3 src/main.py -a mine -i <path_to_input_file>
+```
+
+Note: the input file must be a csv file containing a column called `name`. Every other column is discarded. We recommend
+using the [SEART](https://seart-ghs.si.usi.ch) tool to generate such a file. Remember to set the language to `Java` and 
+exclude forks. Every other parameter is optional, although setting a minimum number of contributors/stars is encouraged.
+
+#### Ad-hoc Dataset Generation
+
+The naming of this functionality might be a bit confusing, because as we just learnt, the complete dataset was created 
+during the mining phase (the entire content of the `resources` folder). This functionality does not change the dataset 
+at all. It is in fact meant to be used by any user to obtain a subset of such dataset in order to test their model. 
+
+The framework will provide a csv file which is a subset of `resources/expected.csv`. No masking is applied, meaning that
+the user will have access to the target codes. In this way, they will be able to test their model as they prefer.
+
+You can invoke the generation function by using the following command:
+
+```bash
+python3 src/main.py -a generate -o <path_to_output_folder> -m [line,token] -n <min_number> -x <max_number> -c [instruction,line] -t <coverage_threshold> -e <time_[m,h,d]>
+```
+
+Note: only the output `--output` (or `-o`) parameter is mandatory. The other parameters are optional.
+
+- `--output` (or `-o`): the path to the **folder** where the dataset will be generated. The dataset will be located
+                        inside this folder, and it will be called `generated.csv`.
+- `--measure` (or `-m`): the type of measure used to filter the dataset. It can be set to `line` or `token`. By default,
+                         it is not provided, meaning no filtering will be applied. It is meant to be used in combination
+                         with the `--min` and `--max` parameters.
+- `--min` (or `-n`): the minimum number of occurrences of the measure to be considered.
+- `--max` (or `-x`): the maximum number of occurrences of the measure to be considered.
+- `--coverage-type` (or `-c`): the type of coverage to be considered. It can be set to `instruction` or `line`. By 
+                               default, it is not provided, meaning no filtering will be applied. It is meant to be used 
+                               in combination with the `--coverage-threshold` parameter.
+- `--coverage-threshold` (or `-t`): the minimum coverage percentage to be considered. Even though it is a percentage, it 
+                                    should be provided as a simple number between 0 and 100.
+- `--max-eval-time` (or `-e`): the maximum time allowed for the evaluation of the dataset. It should be provided as a 
+                               number followed by one of the following units: `m` for minutes, `h` for hours, or `d` for 
+                               days. By default, it is not provided, meaning no time limit will be applied.
+
+Examples:
+
+- by setting `--measure` to `line`, `--min` to `4` and `--max` to `15`, the generated subset of the dataset will contain 
+  only the methods that have more than 4 lines and less than 15 lines.
+- by setting `--coverage-type` to `instruction`, `--coverage-threshold` to `50`, the generated subset of the dataset 
+  will contain only the methods that have an instruction coverage greater than 50%.
+- by setting `--max-eval-time` to `10d`, invoking the evaluation function (see below) of the framework with this dataset
+  will not take more than 10 days to complete. Note that the time limit is only an upper bound, thus the evaluation 
+  might complete in less than 10 days. In fact, if all the predictions were correct, it will only take a few minutes.
+
+The exact parameters we used in our thesis to test our best performing model were:
+
+```bash
+python3 src/main.py -a generate -o data -m line -n 4 -x 15 -c instruction -t 100 -e 10d
+```
+
+#### Evaluation
+
+After the user has generated their dataset, they are supposed to mask the token they prefer and make their model predict
+those. As soon as they have the predictions, they can use the framework once again to evaluate them. 
+
+You can use the following command to evaluate your model's predictions:
+
+```
+python3 src/main.py -a evaluate -i <path_to_input_file> -o <path_to_output_folder> -b [1,2,3,4,avg]
+```
+
+- `--input` (or `-i`): the path to the csv file containing the prediction of the model. It must contain the following
+                       four columns:
+  - `id`: the id of the prediction as it was generated by the framework in the previous step (ad-hoc dataset generation)
+  - `predicted_method`: the predicted method as a whole
+  - `masked_code`: the code that was masked by the user
+  - `predicted_code`: the code that was predicted by the model (_i.e._, how the model replaced the masked code)
+- `--output` (or `-o`): the path to the folder where the evaluation results will be saved. Four files will be generated
+                        inside this folder:
+  - `summary.txt`: a small summary contained all the metrics computed by the framework
+  - `log.csv`: a csv file containing the exact value of every metric for each prediction
+  - `bleu_distribution.txt`: a text file containing all the BLEU scores
+  - `levenshtein_distribution.txt`: a text file containing all the Levenshtein distances
+- `--bleu` (or `-b`): this is the only optional parameter of this function. It can be set to either `1`, `2`, `3`, `4`,
+                       or `avg`. If it is set to `1`, `2`, `3`, or `4`, the framework will only compute the BLEU score
+                       for the corresponding n-grams. If it is set to `avg`, the framework will compute the average
+                       BLEU score of all four n-grams. By default, it is set to `avg`.
+
+The input file we provided to this function and the output folder generated by the tool are available 
+[here](TODO link 9).
