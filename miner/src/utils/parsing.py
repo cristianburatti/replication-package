@@ -1,11 +1,14 @@
+import os
 import pandas as pd
 
-
 def parse_failed_repos():
-    with open('in/failed.txt', 'r') as f:
-        repos = f.read().split('\n')
-        repos = set(repos)
-        return repos
+    if os.path.exists('in/failed.txt'):
+        with open('in/failed.txt', 'r') as f:
+            repos = f.read().split('\n')
+            repos = set(repos)
+            return repos
+    else:
+        return set()
 
 
 def parse_all_methods():

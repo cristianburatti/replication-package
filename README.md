@@ -42,3 +42,8 @@ are available [here](TODO). Put the `finetuning` folder you at `miner/data/finet
 python src/main.py
 ``` 
 
+After the script has finished, you will find a folder named `archives`. This will contain a ZIP file for each repository
+that has been successfully mined and checked out to the original version. Moreover, an `out` folder will contain text
+files regarding the mining process. One of them will be a list of failed repositories. Another will be called `all.csv`
+and will contain all the methods of the dataset.
+
