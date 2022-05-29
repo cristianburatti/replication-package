@@ -115,3 +115,34 @@ were mostly utilities and are reported here for completion, but you are not requ
   dataset are disjoint.
 - `splitter.py`: splits the dataset into train (80%), test (10%) and validation (10%) sets. It is required when using 
   the main script to generate the `javadoc` dataset.
+
+------------------------------------------------------------------------------------------------------------------------
+
+### Task 3 - Jupyter Notebooks
+
+This section focused on how to use Jupyter Notebooks to train and evaluate T5 models.
+
+You can find four different notebooks under the `notebooks` folder:
+- `complete_finetuning.ipynb`
+- `javadoc_finetuning.ipynb`
+- `evaluation.ipynb`
+- `testing.ipynb`
+
+The first two datasets are used to fine-tune the T5 model. Depending on the value passed to the `dataset` parameter of 
+the previous section, you should use the corresponding notebook. For an in-depth guide on how to set up a Google Cloud 
+Storage bucket please refer to the original [replication package](https://github.com/mciniselli/T5_Replication_Package) 
+of Ciniselli et al.
+
+The resources required to run the notebooks can be found [here](TODO Link 6):
+- `Ciniselli model`: the latest checkpoint of the T5 model used in the original paper. Use this model whenever you run 
+  the `complete_finetuning` notebook 
+- `Mastropaolo model`: the latest checkpoint of the T5 model used by Mastropaolo et al. Use this model whenever you run 
+  the `javadoc_finetuning` notebook
+- `configuration file`: a folder containing two `operative_config.gin` files, one for a model (Ciniselli's model) with
+  200 thousand pretraining step and one (Mastropaolo's) for 500 thousand. Set the correct one based on the model you are
+  using. 
+
+The fine-tuned models that were generated during our experiments can be found [here](TODO Link 7).
+
+------------------------------------------------------------------------------------------------------------------------
+
