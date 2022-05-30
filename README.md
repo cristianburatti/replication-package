@@ -44,12 +44,12 @@ python3 src/main.py
 ``` 
 
 After the script has finished, you will find a folder named `archives`. This will contain a ZIP file for each repository
-that has been successfully mined and checked out to the original version. The results we obtained from this steps are 
-available [here](TODO Link 2).
+that has been successfully mined and checked out to the original version. 
 
 Moreover, an `out` folder will contain text files regarding the mining process. One of them will be a list of failed 
 repositories. Another will be called `all.csv` and will contain all the methods of the dataset. We renamed it to 
-`main.csv` and it can be downloaded [here](TODO Link 3).
+`main.csv` and it can be downloaded [here](TODO Link 3). If you want to recreate exactly our dataset, use this file to
+download the repositories and retrieve the original snapshot.
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -178,7 +178,9 @@ files:
                  the file inside the project, the line number, coverage of the method, etc.
 
 The folder created when we first run the script, and therefore the dataset we used in our thesis, can be found
-[here](TODO Link 8). Alongside the resources folder, we also have the input file we provided to the tool.
+[here](TODO Link 8). Note that we only provide the three CSV files and not all the repositories. If you want to download
+all of them, you can filter the `repositories.csv` file for all the one with status `success` and check out the 
+corresponding tag. Alongside the resources folder, we also have the input file we provided to the tool.
 
 You can invoke the mining function by using the following command:
 
